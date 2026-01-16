@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "https://aiagent-copilot2.onrender.com";
 
 export default function Page() {
   const [messages, setMessages] = useState<string[]>([]);
