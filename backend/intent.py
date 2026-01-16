@@ -2,9 +2,11 @@ from groq import Groq
 import json
 import re
 from dotenv import load_dotenv
+from memory import chat_history
 import os
 
 load_dotenv()
+
 
 API_KEY = os.getenv("API_KEY")
 
@@ -16,10 +18,9 @@ Classify the user's intent and extract entity if present.
 
 Possible intents:
 - CREATE_PROPOSAL (start a new proposal)
-- SELECT_COMPANY (user selects one of given companies)
+- SELECT_COMPANY
 - REVISE_PROPOSAL (modify an existing proposal)
 - DONE (finish / acknowledge)
-- UNKNOWN
 
 Return ONLY valid JSON.
 
@@ -31,6 +32,9 @@ Schema:
 
 User input:
 "{query}"
+previous hostory:
+"{chat_history}
+
 """
     try:
         res = client.chat.completions.create(
@@ -39,6 +43,11 @@ User input:
         )
 
         raw = res.choices[0].message.content.strip()
+        chat_history.append({"user" : query, "output": raw})
+
+        if(len(chat_history) > 20):
+            chat_history.pop(0)
+
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             data = json.loads(match.group())

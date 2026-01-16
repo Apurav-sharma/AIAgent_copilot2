@@ -1,6 +1,7 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
+from memory import chat_history
 
 load_dotenv()
 
@@ -30,6 +31,10 @@ Write a professional sales proposal with:
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         messages=[{"role": "user", "content": prompt}]
     )
+
+    chat_history.append({"user" : prompt, "output": res.choices[0].message.content})
+    if(len(chat_history) > 20):
+        chat_history.pop(0)
 
     return res.choices[0].message.content
 

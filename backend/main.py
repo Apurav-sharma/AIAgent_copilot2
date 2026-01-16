@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from memory import create_proposal, get_proposal
+from memory import create_proposal, get_proposal, returnall
 from intent import extract_intent
 from agent import run_agent
 from pydantic import BaseModel
@@ -42,3 +42,8 @@ def chat(payload: ChatRequest):
         "state": proposal["state"],
         "response": response
     }
+
+
+@app.get("/getproposals")
+def getpropo():
+    return returnall()
