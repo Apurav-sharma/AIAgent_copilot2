@@ -9,7 +9,7 @@ API_KEY = os.getenv("API_KEY")
 
 client = Groq(api_key=API_KEY)
 
-def generate_proposal(company):
+def generate_proposal(company, id):
     prompt = f"""
 You are an enterprise sales proposal agent.
 
@@ -32,14 +32,14 @@ Write a professional sales proposal with:
         messages=[{"role": "user", "content": prompt}]
     )
 
-    chat_history.append({"user" : prompt, "output": res.choices[0].message.content})
-    if(len(chat_history) > 20):
-        chat_history.pop(0)
+    chat_history[id].append({"user" : prompt, "output": res.choices[0].message.content})
+    if(len(chat_history[id]) > 20):
+        chat_history[id].pop(0)
 
     return res.choices[0].message.content
 
 
-def revise_proposal(draft: str, instruction: str):
+def revise_proposal(draft: str, instruction: str, id: str):
     prompt = f"""
 You are revising an existing enterprise sales proposal.
 
@@ -56,4 +56,9 @@ Return the FULL revised proposal.
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         messages=[{"role": "user", "content": prompt}]
     )
+    
+    chat_history[id].append({"user" : prompt, "output": res.choices[0].message.content})
+    if(len(chat_history[id]) > 20):
+        chat_history[id].pop(0)
+
     return res.choices[0].message.content

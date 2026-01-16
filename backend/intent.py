@@ -12,7 +12,7 @@ API_KEY = os.getenv("API_KEY")
 
 client = Groq(api_key=API_KEY)
 
-def extract_intent(query: str):
+def extract_intent(query: str, proposal_id: str):
     prompt = f"""
 Classify the user's intent and extract entity if present.
 
@@ -33,7 +33,7 @@ Schema:
 User input:
 "{query}"
 previous hostory:
-"{chat_history}
+"{chat_history[proposal_id]}
 
 """
     try:
@@ -43,10 +43,10 @@ previous hostory:
         )
 
         raw = res.choices[0].message.content.strip()
-        chat_history.append({"user" : query, "output": raw})
+        chat_history[proposal_id].append({"user" : query, "output": raw})
 
-        if(len(chat_history) > 20):
-            chat_history.pop(0)
+        if(len(chat_history[proposal_id]) > 20):
+            chat_history[proposal_id].pop(0)
 
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
