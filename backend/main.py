@@ -35,7 +35,7 @@ def chat(payload: ChatRequest):
         proposal_id = payload.proposal_id
 
     parsed = extract_intent(payload.query, proposal_id)
-    response = run_agent(proposal, parsed)
+    response = run_agent(proposal, parsed, proposal_id)
 
     return {
         "proposal_id": proposal_id,

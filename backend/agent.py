@@ -2,7 +2,7 @@ from data import find_company
 from llm import generate_proposal, revise_proposal
 from memory import reset_proposal
 
-def run_agent(proposal, parsed):
+def run_agent(proposal, parsed, id):
 
     state = proposal["state"]
     intent = parsed["intent"]
@@ -20,7 +20,7 @@ def run_agent(proposal, parsed):
 
     # ✏️ REVISION
     if intent == "REVISE_PROPOSAL" and state == "DRAFT_READY":
-        proposal["draft"] = revise_proposal(proposal["draft"], user_input)
+        proposal["draft"] = revise_proposal(proposal["draft"], user_input, id)
         return {
             "message": "I’ve applied your requested changes.",
             "draft": proposal["draft"]
@@ -74,7 +74,7 @@ def run_agent(proposal, parsed):
 
     # 3️⃣ GENERATE PROPOSAL
     if proposal["state"] == "CONTEXT_READY":
-        proposal["draft"] = generate_proposal(proposal["company"])
+        proposal["draft"] = generate_proposal(proposal["company"], id)
         proposal["state"] = "DRAFT_READY"
         return {
             "message": f"Proposal created for {proposal['company']['name']}.",
