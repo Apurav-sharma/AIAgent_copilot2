@@ -47,8 +47,8 @@ previous hostory:
 
         if(len(chat_history[proposal_id]) > 20):
             chat_history[proposal_id].pop(0)
-        print(chat_history[proposal_id])
-        print("INTENT RAW:", raw, "user query:", query)
+        # print(chat_history[proposal_id])
+        # print("INTENT RAW:", raw, "user query:", query)
 
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
