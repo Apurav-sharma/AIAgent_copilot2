@@ -14,3 +14,9 @@ def create_proposal():
 
 def get_proposal(pid):
     return PROPOSALS.get(pid)
+
+def reset_proposal(proposal):
+    proposal["state"] = "INIT"
+    proposal["company"] = None
+    proposal["matches"] = []
+    proposal["draft"] = ""

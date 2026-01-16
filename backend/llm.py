@@ -1,7 +1,10 @@
-from concurrent.futures import process
 from groq import Groq
+from dotenv import load_dotenv
+import os
 
-API_KEY = process.env.GROQ_API_KEY
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 client = Groq(api_key=API_KEY)
 
@@ -28,4 +31,24 @@ Write a professional sales proposal with:
         messages=[{"role": "user", "content": prompt}]
     )
 
+    return res.choices[0].message.content
+
+
+def revise_proposal(draft: str, instruction: str):
+    prompt = f"""
+You are revising an existing enterprise sales proposal.
+
+CURRENT PROPOSAL:
+{draft}
+
+USER REQUEST:
+{instruction}
+
+Apply the requested change carefully.
+Return the FULL revised proposal.
+"""
+    res = client.chat.completions.create(
+        model="meta-llama/llama-4-scout-17b-16e-instruct",
+        messages=[{"role": "user", "content": prompt}]
+    )
     return res.choices[0].message.content

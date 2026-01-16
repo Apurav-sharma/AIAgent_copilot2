@@ -1,46 +1,57 @@
 from groq import Groq
 import json
 import re
-from concurrent.futures import process
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-API_KEY = process.env.GROQ_API_KEY
+API_KEY = os.getenv("API_KEY")
 
 client = Groq(api_key=API_KEY)
 
 def extract_intent(query: str):
     prompt = f"""
-You are a JSON API.
+Classify the user's intent and extract entity if present.
 
-Extract intent and entity from the user query.
+Possible intents:
+- CREATE_PROPOSAL (start a new proposal)
+- SELECT_COMPANY (user selects one of given companies)
+- REVISE_PROPOSAL (modify an existing proposal)
+- DONE (finish / acknowledge)
+- UNKNOWN
 
 Return ONLY valid JSON.
-No text. No explanation.
 
 Schema:
 {{
-  "intent": "CREATE_PROPOSAL",
-  "entity": "<company name>"
+  "intent": "<INTENT>",
+  "entity": "<company name if any, else empty>"
 }}
 
-User query:
+User input:
 "{query}"
 """
+    try:
+        res = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    res = client.chat.completions.create(
-        model="meta-llama/llama-4-scout-17b-16e-instruct",
-        messages=[{"role": "user", "content": prompt}]
-    )
+        raw = res.choices[0].message.content.strip()
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if match:
+            data = json.loads(match.group())
+            return {
+                "intent": data.get("intent", "UNKNOWN"),
+                "entity": data.get("entity", "").strip(),
+                "user_input": query.strip()
+            }
+    except:
+        pass
 
-    raw = res.choices[0].message.content.strip()
-
-    # 🛡️ SAFETY: extract JSON even if model adds text
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
-    if not match:
-        # fallback (never crash agent)
-        return {
-            "intent": "UNKNOWN",
-            "entity": query
-        }
-
-    return json.loads(match.group())
+    return {
+        "intent": "UNKNOWN",
+        "entity": "",
+        "user_input": query.strip()
+    }
