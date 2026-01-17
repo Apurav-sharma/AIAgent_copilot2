@@ -32,7 +32,7 @@ Schema:
 
 User input:
 "{query}"
-previous hostory:
+previous history(last 20 conversations for context understanding):
 "{chat_history[proposal_id]}
 
 """
